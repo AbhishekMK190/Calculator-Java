@@ -1,10 +1,14 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven 3.8.6'
+    }
+
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/vigneshbhatn/Calculator-Java.git'
+                git 'https://github.com/AbhishekMK190/Calculator-Java.git'
             }
         }
 
@@ -19,14 +23,17 @@ pipeline {
                 sh 'mvn test'
             }
         }
-    }
 
-    post {
-        success {
-            echo "✅ Build and tests successful!"
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            }
         }
-        failure {
-            echo "❌ Build or tests failed!"
+
+        stage('Deploy') {
+            steps {
+                sh 'ansible-playbook -i inventory.ini deploy.yml'
+            }
         }
     }
 }
