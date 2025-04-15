@@ -1,0 +1,13 @@
+- name: Deploy Maven Application
+  hosts: web
+  tasks:
+    - name: Copy JAR file to remote server
+      copy:
+        src: /var/lib/jenkins/workspace/Maven-CI-Pipeline/target/calculator-java-1.0-SNAPSHOT.jar
+        dest: /opt/calculator-java-1.0-SNAPSHOT.jar
+        mode: '0755'
+
+    - name: Restart Application Service
+      shell: |
+        pkill -f calculator-java-1.0-SNAPSHOT.jar || true
+        nohup java -jar /opt/calculator-java-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
